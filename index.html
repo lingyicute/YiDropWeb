@@ -10,7 +10,13 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="YiDrop — 把文件，丢给身边的设备">
 <meta property="og:description" content="开源、免费、跨平台的局域网文件分享工具。无需互联网、无需账号，全程 HTTPS 加密。">
-<meta property="og:url" content="https://drop.92li.uk">
+<meta property="og:url" content="https://drop.92li.uk/">
+<meta property="og:site_name" content="YiDrop">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://drop.92li.uk/img/screenshot-pc.webp">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://drop.92li.uk/">
+<link rel="preconnect" href="https://nebulove.92li.uk" crossorigin>
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Crect%20width%3D%22100%22%20height%3D%22100%22%20rx%3D%2223%22%20fill%3D%22%233a59b2%22%2F%3E%3Cg%20fill%3D%22%23ffffff%22%20transform%3D%22translate%2850%2050%29%20scale%280.78%29%20translate%28-50%20-50%29%22%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2220.6%22%2F%3E%3Crect%20x%3D%2239.2%22%20y%3D%2210.8%22%20width%3D%2221.6%22%20height%3D%229.6%22%20rx%3D%224.8%22%20transform%3D%22rotate%280%2050%2050%29%22%2F%3E%3Crect%20x%3D%2239.2%22%20y%3D%2210.8%22%20width%3D%2221.6%22%20height%3D%229.6%22%20rx%3D%224.8%22%20transform%3D%22rotate%2845%2050%2050%29%22%2F%3E%3Crect%20x%3D%2239.2%22%20y%3D%2210.8%22%20width%3D%2221.6%22%20height%3D%229.6%22%20rx%3D%224.8%22%20transform%3D%22rotate%2890%2050%2050%29%22%2F%3E%3Crect%20x%3D%2239.2%22%20y%3D%2210.8%22%20width%3D%2221.6%22%20height%3D%229.6%22%20rx%3D%224.8%22%20transform%3D%22rotate%28135%2050%2050%29%22%2F%3E%3Crect%20x%3D%2239.2%22%20y%3D%2210.8%22%20width%3D%2221.6%22%20height%3D%229.6%22%20rx%3D%224.8%22%20transform%3D%22rotate%28180%2050%2050%29%22%2F%3E%3Crect%20x%3D%2239.2%22%20y%3D%2210.8%22%20width%3D%2221.6%22%20height%3D%229.6%22%20rx%3D%224.8%22%20transform%3D%22rotate%28225%2050%2050%29%22%2F%3E%3Crect%20x%3D%2239.2%22%20y%3D%2210.8%22%20width%3D%2221.6%22%20height%3D%229.6%22%20rx%3D%224.8%22%20transform%3D%22rotate%28270%2050%2050%29%22%2F%3E%3Crect%20x%3D%2239.2%22%20y%3D%2210.8%22%20width%3D%2221.6%22%20height%3D%229.6%22%20rx%3D%224.8%22%20transform%3D%22rotate%28315%2050%2050%29%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E">
 <script>
 (function(){try{var r=document.documentElement,t=localStorage.getItem('yidrop:theme'),p=localStorage.getItem('yidrop:palette');
@@ -23,7 +29,6 @@ if(p==='teal'||p==='indigo'||p==='violet'||p==='rose'||p==='amber')r.setAttribut
 
 :root{
   --seed:#008080;
-  --l-primary:#196969;
   --l-primary:#196969;
   --l-on-primary:#ffffff;
   --l-primary-container:#a8efee;
@@ -175,7 +180,6 @@ if(p==='teal'||p==='indigo'||p==='violet'||p==='rose'||p==='amber')r.setAttribut
 :root[data-palette="violet"]{
   --seed:#6D4AE0;
   --l-primary:#625789;
-  --l-primary:#625789;
   --l-on-primary:#ffffff;
   --l-primary-container:#e7deff;
   --l-on-primary-container:#1e1341;
@@ -250,7 +254,6 @@ if(p==='teal'||p==='indigo'||p==='violet'||p==='rose'||p==='amber')r.setAttribut
 :root[data-palette="rose"]{
   --seed:#C2185B;
   --l-primary:#894c5b;
-  --l-primary:#894c5b;
   --l-on-primary:#ffffff;
   --l-primary-container:#ffd9df;
   --l-on-primary-container:#380b19;
@@ -324,7 +327,6 @@ if(p==='teal'||p==='indigo'||p==='violet'||p==='rose'||p==='amber')r.setAttribut
 
 :root[data-palette="amber"]{
   --seed:#C25E12;
-  --l-primary:#88512e;
   --l-primary:#88512e;
   --l-on-primary:#ffffff;
   --l-primary-container:#ffdbc9;
@@ -1492,11 +1494,11 @@ details.acc[open] summary::after{transform:rotate(135deg)}
         <div class="preview-shots">
           <div class="preview-composite">
             <figure class="shot shot--desktop reveal">
-              <img src="https://drop.92li.uk/img/screenshot-pc.webp" alt="YiDrop Windows" width="1600" height="930" loading="lazy" decoding="async">
+              <img src="img/screenshot-pc.webp" alt="YiDrop Windows" width="1600" height="930" loading="lazy" decoding="async">
               <span class="shot__badge"><svg class="icon" aria-hidden="true"><use href="#ic-desktop"/></svg>Windows</span>
             </figure>
             <figure class="shot shot--phone reveal">
-              <img src="https://drop.92li.uk/img/yidrop.webp" alt="YiDrop Android" width="640" height="1367" loading="lazy" decoding="async">
+              <img src="img/yidrop.webp" alt="YiDrop Android" width="640" height="1367" loading="lazy" decoding="async">
               <span class="shot__badge"><svg class="icon" aria-hidden="true"><use href="#ic-phone"/></svg>Android</span>
             </figure>
           </div>
