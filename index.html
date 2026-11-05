@@ -738,11 +738,13 @@ section{scroll-margin-top:calc(var(--bar-h) + 24px)}
   right:var(--gutter);top:calc(var(--bar-h) - 12px);
   background:var(--surface-container);color:var(--on-surface);
   border-radius:var(--shape-xs);padding:8px;box-shadow:var(--elev-2);
-  opacity:0;transform:scale(.94);transform-origin:top right;pointer-events:none;
-  transition:opacity var(--motion-short3) var(--ease-standard),transform var(--motion-short4) var(--ease-emphasized-decel);
+  opacity:0;transform:scale(.94);transform-origin:top right;pointer-events:none;visibility:hidden;
+  transition:opacity var(--motion-short3) var(--ease-standard),transform var(--motion-short4) var(--ease-emphasized-decel),visibility 0s linear var(--motion-short4);
 }
-.menu[data-open="true"]{opacity:1;transform:scale(1);pointer-events:auto}
+.menu[data-open="true"]{opacity:1;transform:scale(1);pointer-events:auto;visibility:visible;
+  transition:opacity var(--motion-short3) var(--ease-standard),transform var(--motion-short4) var(--ease-emphasized-decel),visibility 0s}
 .menu__item{
+  position:relative;overflow:hidden;
   display:flex;align-items:center;gap:12px;width:100%;
   padding:10px 12px;border-radius:var(--shape-full);
   font-size:.9375rem;font-weight:500;text-align:left;color:inherit;
@@ -994,14 +996,14 @@ td b,th b{color:var(--primary);font-weight:700}
 /* ---------- 标签页（下载） ---------- */
 .tabs{display:flex;gap:5px;border-bottom:1px solid var(--outline-variant);margin-bottom:26px;overflow-x:auto}
 .tab{
-  position:relative;display:inline-flex;align-items:center;gap:8px;
+  position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:8px;
   padding:14px 18px;border-radius:var(--shape-sm) var(--shape-sm) 0 0;
   font-size:.9375rem;font-weight:600;color:var(--on-surface-variant);white-space:nowrap;
   transition:background-color var(--motion-short2) var(--ease-standard),color var(--motion-short2) var(--ease-standard);
 }
 .tab .icon{width:18px;height:18px}
 .tab[aria-selected="true"]{color:var(--primary)}
-.tab[aria-selected="true"]::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:3px;border-radius:3px 3px 0 0;background:var(--primary)}
+.tab[aria-selected="true"]::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;border-radius:3px 3px 0 0;background:var(--primary)}
 .tab:hover{background:color-mix(in srgb,var(--primary) 8%,transparent)}
 .tabpanel[hidden]{display:none}
 .tabpanel{animation:fade-up var(--motion-medium2) var(--ease-emphasized-decel)}
@@ -1050,7 +1052,7 @@ details.acc[open] summary::after{transform:rotate(135deg)}
 /* ---------- FAB / Snackbar ---------- */
 .fab{
   position:fixed;right:clamp(16px,3vw,32px);bottom:clamp(16px,3vw,32px);z-index:90;
-  display:inline-flex;align-items:center;gap:12px;height:56px;padding:0 20px;
+  display:inline-flex;align-items:center;gap:12px;height:56px;padding:0 20px;overflow:hidden;
   border-radius:var(--shape-fab);background:var(--primary-container);color:var(--on-primary-container);
   box-shadow:var(--elev-3);font-size:.9375rem;font-weight:700;
   opacity:0;transform:translateY(24px) scale(.86);pointer-events:none;
@@ -1812,9 +1814,6 @@ details.acc[open] summary::after{transform:rotate(135deg)}
   var THEME_KEY = 'yidrop:theme';
   var PALETTE_KEY = 'yidrop:palette';
 
-  function isDark(theme) {
-    return theme === 'dark' || (theme === 'system' && mqlDark.matches);
-  }
   function applyTheme(theme) {
     root.setAttribute('data-theme', theme);
     $$('[data-theme-value]').forEach(function (btn) {
@@ -1865,6 +1864,7 @@ details.acc[open] summary::after{transform:rotate(135deg)}
   menus.forEach(function (m) {
     m.btn.addEventListener('click', function (e) {
       e.stopPropagation();
+      closeMobileNav();
       var open = m.menu.dataset.open === 'true';
       closeMenus(open ? null : m.menu);
       m.menu.dataset.open = String(!open);
@@ -1874,7 +1874,11 @@ details.acc[open] summary::after{transform:rotate(135deg)}
   });
   document.addEventListener('click', function () { closeMenus(null); closeMobileNav(); });
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') { closeMenus(null); closeMobileNav(); }
+    if (e.key !== 'Escape') return;
+    var opened = menus.filter(function (m) { return m.menu.dataset.open === 'true'; })[0];
+    var navOpen = mobileNav && mobileNav.dataset.open === 'true';
+    closeMenus(null); closeMobileNav();
+    if (opened) opened.btn.focus(); else if (navOpen && menuBtn) menuBtn.focus();
   });
 
   $$('[data-theme-value]').forEach(function (btn) {
@@ -1939,8 +1943,14 @@ details.acc[open] summary::after{transform:rotate(135deg)}
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (entry.isIntersecting) {
-          entry.target.classList.add('is-in');
-          io.unobserve(entry.target);
+          var el = entry.target;
+          el.classList.add('is-in');
+          io.unobserve(el);
+          /* 进场完成后撤掉 .reveal，否则其 transition 与残留 delay 会覆盖卡片自身的悬停/按压动效 */
+          setTimeout(function () {
+            el.style.transitionDelay = '';
+            el.classList.remove('reveal', 'is-in');
+          }, 600 + (parseFloat(el.style.transitionDelay) || 0));
         }
       });
     }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
@@ -1954,6 +1964,8 @@ details.acc[open] summary::after{transform:rotate(135deg)}
   var sections = navLinks
     .map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); })
     .filter(Boolean);
+  var topEl = document.getElementById('top');
+  if (topEl) sections.push(topEl);
   if ('IntersectionObserver' in window && sections.length) {
     var spy = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
@@ -2031,20 +2043,24 @@ details.acc[open] summary::after{transform:rotate(135deg)}
       var target = document.querySelector(btn.dataset.copy);
       if (!target) return;
       var text = target.innerText;
-      var done = function () { showSnackbar('构建命令已复制到剪贴板'); };
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(done, done);
-      } else {
+      var finish = function (ok) { showSnackbar(ok ? '构建命令已复制到剪贴板' : '复制失败，请手动选中代码后复制'); };
+      var legacyCopy = function () {
         var ta = document.createElement('textarea');
+        var ok = false;
         ta.value = text;
         ta.setAttribute('readonly', '');
         ta.style.position = 'fixed';
         ta.style.opacity = '0';
         document.body.appendChild(ta);
         ta.select();
-        try { document.execCommand('copy'); } catch (err) {}
+        try { ok = document.execCommand('copy'); } catch (err) {}
         ta.remove();
-        done();
+        return ok;
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { finish(true); }, function () { finish(legacyCopy()); });
+      } else {
+        finish(legacyCopy());
       }
     });
   });
@@ -2063,34 +2079,23 @@ details.acc[open] summary::after{transform:rotate(135deg)}
     var win = $('.stage .window');
     if(!stage || !win) return;
     var DESIGN_W = 520;
-    var DESIGN_H = 410; // 窗口+装饰的大致高度，用于撑开父容器
+    var DESIGN_H = 410; // 无法测量时的兜底高度
     function doScale(){
-      var available = stage.clientWidth;
-      // stage.clientWidth 在某些情况下为 0 时用 window 宽度兜底
-      if(!available || available < 10){
-        var gutter = 32;
-        try{
-          var g = getComputedStyle(document.documentElement).getPropertyValue('--gutter');
-          // gutter 是 clamp，无法直接转 px，简单用 16px 兜底
-          gutter = 32;
-        }catch(e){}
-        available = window.innerWidth - gutter;
-        if(available < 200) available = window.innerWidth - 16;
-      }
-      var scale = available / DESIGN_W;
-      if(scale > 1) scale = 1;
-      if(scale < 0.15) scale = 0.15; // 防止缩到看不见，仍可无限缩
+      var cs = getComputedStyle(stage);
+      var padX = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
+      // 可用宽度必须扣除 stage 的内边距，否则窗口会向右溢出
+      var available = stage.clientWidth - padX;
+      if (available < 10) available = Math.max(window.innerWidth - 32 - padX, 200);
+      var scale = Math.min(1, Math.max(0.15, available / DESIGN_W));
       win.style.width = DESIGN_W + 'px';
       win.style.maxWidth = 'none';
       win.style.transformOrigin = 'top left';
       win.style.transform = 'scale(' + scale + ')';
-      // 用 margin 实现居中，因为 transform 后的布局宽度仍是 DESIGN_W
-      var marginLeft = (available - DESIGN_W * scale) / 2;
-      // marginLeft 需要除以 scale，因为 transform 后的坐标系被缩放了
-      win.style.marginLeft = (marginLeft / scale) + 'px';
+      // transform 不改变布局宽度，用 margin 居中（坐标系已被缩放，需除以 scale）
+      win.style.marginLeft = ((available - DESIGN_W * scale) / 2 / scale) + 'px';
       win.style.marginRight = '0';
-      // 撑开 stage 高度
-      stage.style.height = (DESIGN_H * scale + 56) + 'px';
+      // 按真实窗口高度撑开 stage
+      stage.style.height = ((win.offsetHeight || DESIGN_H) * scale + 56) + 'px';
       stage.style.minHeight = '0';
       stage.style.overflow = 'visible';
     }
